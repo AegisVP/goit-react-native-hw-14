@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "goit-react-native-hw-14",
+    "slug": "goit-react-native-hw-14",
+    "scheme": "myapp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "bundleIdentifier": "com.pysarenko.myproject",
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyA7TNsbatCuwRLSaNheQVn4uxG9P6ayFG0"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./assets/images/favicon.png"
+    }
+  }
+}
