@@ -8,13 +8,13 @@ import { BackButton } from '../components/BackButton';
 import PostsNavigator from './PostsNavigator';
 import CreatePostScreen from '../screens/CreatePostScreen';
 import ProfileScreen from '../screens/ProfileScreen';
-import posts from '../../postData';
+import { logoutDB } from '../utils/auth';
 
 const Tab = createBottomTabNavigator();
 
-const HomeNavigator = ({ doLogout }) => {
+const HomeNavigator = () => {
   const headerOptions = {
-    headerRight: () => <LogoutButton onPress={doLogout} />,
+    headerRight: () => <LogoutButton onPress={logoutDB} />,
     tabBarLabel: '',
     tabBarStyle: { paddingVertical: 12, paddingHorizontal: 50, gap: 32, justifyContent: 'center' },
     tabBarOptions: {
@@ -27,7 +27,7 @@ const HomeNavigator = ({ doLogout }) => {
     <Tab.Navigator initialRouteName='Posts' screenOptions={{ headerStatusBarHeight: 44 }}>
       <Tab.Screen
         name='Posts'
-        component={() => <PostsNavigator posts={posts} doLogout={doLogout} />}
+        component={PostsNavigator}
         options={{
           ...headerOptions,
           headerShown: false,
@@ -47,7 +47,7 @@ const HomeNavigator = ({ doLogout }) => {
           headerRight: null,
           title: 'Create Post',
           tabBarStyle: { display: 'none' },
-          headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
+          headerLeft: () => <BackButton title='Posts' onPress={() => navigation.goBack()} />,
           tabBarIcon: () => (
             <View style={[styles.bottomButton, styles.bottomButtonBig, styles.bottomButtonBigActive]}>
               <Ionicons name={'add'} size={24} color={colors.white} />

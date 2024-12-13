@@ -5,7 +5,7 @@ import HomeNavigator from './HomeNavigator';
 import LoginScreen from '../screens/LoginScreen';
 import RegistrationScreen from '../screens/RegistrationScreen';
 import { logoutDB } from '../utils/auth';
-import { selectUserInfo, setUserInfo } from '../redux/userSlice';
+import { setUserInfo } from '../redux/userSlice';
 import { getUser } from '../utils/firestore';
 
 const Stack = createStackNavigator();
@@ -49,7 +49,7 @@ const AuthNavigator = () => {
     <Stack.Navigator>
       {isLoggedin ? (
         <Stack.Screen name='Home' options={{ mode: 'card', headerMode: 'none' }}>
-          {() => <HomeNavigator doLogout={doLogout} />}
+          {() => <HomeNavigator />}
         </Stack.Screen>
       ) : (
         <>

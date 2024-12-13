@@ -3,8 +3,8 @@ import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
 const MapScreen = ({ route: { params } }) => {
-  const { geoLocation, locality, pictureName } = params.post;
-  const [location, setLocation] = useState({ latitude: geoLocation?.latitude ?? 50.4500079, longitude: geoLocation?.longitude ?? 30.524068 });
+  const { geo_longitude, geo_latitude, locality, pictureName } = params.post;
+  const [location, setLocation] = useState({ latitude: geo_latitude ?? 50.4500079, longitude: geo_longitude ?? 30.524068 });
 
   const handleCoordinateChange = e => {
     setLocation(e.nativeEvent.coordinate);
@@ -18,8 +18,8 @@ const MapScreen = ({ route: { params } }) => {
       <MapView
         style={styles.mapStyle}
         region={{
-          latitude: location?.latitude ?? 50.4500079,
-          longitude: location?.longitude ?? 30.524068,
+          latitude: location?.latitude,
+          longitude: location?.longitude,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}

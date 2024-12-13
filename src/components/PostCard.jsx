@@ -1,12 +1,12 @@
 import React from 'react';
-import { Image, Pressable, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../styles/colors';
 import { useNavigation } from '@react-navigation/native';
 
 export const PostCard = ({ post, style: outerStyle = {}, metaLine: MetaLine }) => {
   const { navigate } = useNavigation();
-  if (!post) return null;
+  if (!post) return;
   const { pictureUrl, pictureName, comments, locality } = post;
 
   const toMap = () => navigate('Post Map', { post });
@@ -14,18 +14,15 @@ export const PostCard = ({ post, style: outerStyle = {}, metaLine: MetaLine }) =
 
   return (
     <Pressable style={[styles.container, outerStyle]}>
-      {/* <Image source={{ uri: '../../assets/images/post1.jpg' }} style={styles.postImage} /> */}
       <Image source={{ uri: pictureUrl }} style={styles.postImage} />
-      {/* <Image source={require(`../../assets/images/${image}`)} style={styles.postImage} /> */}
-      {/* <Image source={require('../../assets/images/post1.jpg')} style={styles.postImage} /> */}
       <Text style={styles.postTitle}>{pictureName}</Text>
       {MetaLine ? (
         <MetaLine />
       ) : (
         <View style={styles.postMeta}>
-          <Pressable onPress={toDetails} style={[styles.postDescription, { color: comments.length > 0 ? colors.default : colors.text.secondary }]}>
+          <Pressable onPress={toDetails} style={[styles.postDescription, { color: comments?.length > 0 ? colors.default : colors.text.secondary }]}>
             <Ionicons name='chatbubbles-outline' size={16} />
-            <Text>{comments.length}</Text>
+            <Text>{comments?.length ?? 0}</Text>
           </Pressable>
           {locality && (
             <Pressable onPress={toMap} style={[styles.postDescription, { flexDirection: 'row' }]}>

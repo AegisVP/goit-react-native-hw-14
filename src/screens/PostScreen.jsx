@@ -32,9 +32,9 @@ const PostScreen = ({ route: { params } }) => {
       <ScrollView style={{ flex: 1, padding: 16, paddingTop: 32 }}>
         <Pressable onPress={() => Keyboard.dismiss()} style={{ gap: 32, paddingBottom: 82 }}>
           <Image source={{ uri: pictureUrl }} style={[postStyles.postImage, { borderRadius: 12 }]} />
-          {comments.length > 0 && (
+          {comments?.length > 0 && (
             <View style={{ gap: 16, direction: 'column' }}>
-              {comments.map(({ id, comment, dateTime }, idx) => (
+              {comments?.map(({ id, comment, dateTime }, idx) => (
                 <View key={id} style={[styles.commentBlock, { alignSelf: idx % 2 === 0 ? 'flex-end' : 'flex-start' }]}>
                   <Text>{comment}</Text>
                   <Text style={{ color: colors.text.secondary, textAlign: idx % 2 === 0 ? 'right' : 'left' }}>{dateTime}</Text>
@@ -44,10 +44,7 @@ const PostScreen = ({ route: { params } }) => {
           )}
         </Pressable>
       </ScrollView>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'position' : 'height'}
-        keyboardVerticalOffset={88}
-        style={{ position: 'absolute', left: 16, bottom: 16, width: '100%' }}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : 'height'} keyboardVerticalOffset={88} style={{ position: 'absolute', left: 16, right: 16, bottom: 16 }}>
         <Input placeholder='Leave a comment...' value={comment} onChangeText={setComment} outerStyles={{ borderRadius: 25 }} rightButton={<SendButton />} />
       </KeyboardAvoidingView>
     </View>

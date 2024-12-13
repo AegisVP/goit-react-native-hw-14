@@ -1,6 +1,6 @@
 import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore';
-import { db, storage } from '../../config';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { db } from '../../config';
+import { v4 as uuidv4 } from 'uuid';
 
 // Функція для додавання документа до колекції
 export const addUser = async (userId, userData) => {
@@ -14,7 +14,7 @@ export const addUser = async (userId, userData) => {
 
 export const addPost = async (userId, post) => {
   try {
-    const res = await setDoc(doc(db, 'posts', userId), { userId, posts: [post] }, { merge: true });
+    const res = await setDoc(doc(db, 'posts', userId), { ...post, id: uuidv4() }, { merge: true });
     console.log('Post added:', userId, res);
   } catch (error) {
     console.log('Error adding post:', error);
@@ -24,7 +24,7 @@ export const addPost = async (userId, post) => {
 export const getPosts = async () => {
   const posts = [];
   try {
-    const querySnapshot = await getDocs(collection(db, 'cities'));
+    const querySnapshot = await getDocs(collection(db, 'posts'));
     querySnapshot.forEach(doc => {
       posts.push(doc.data());
     });
@@ -57,25 +57,4 @@ export const updateUserInFirestore = async (uid, data) => {
   } catch (error) {
     console.log('Error saving user data to Firestore:', error);
   }
-};
-
-// Функція для завантаження зображення
-export const uploadImage = async (userId, file, fileName) => {
-  try {
-    const imageRef = ref(storage, `profilePhotos/${userId}/${fileName}`);
-    const result = await uploadBytes(imageRef, file);
-
-    const imageUrl = await getImageUrl(imageRef);
-    console.log('Upload result:', result);
-    return imageUrl;
-  } catch (error) {
-    console.log('Error uploading image:', error);
-    throw error;
-  }
-};
-
-// Функція для отримання URL завантаженого зображення
-export const getImageUrl = async imageRef => {
-  const url = await getDownloadURL(imageRef);
-  return url;
 };

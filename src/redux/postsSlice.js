@@ -6,18 +6,18 @@ const postsSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {
-    writePost(state, { payload }) {
-      state = { posts: [...posts, payload] };
+    addPost(posts, { payload }) {
+      return [...posts, payload];
     },
-    deletePost(state, { payload }) {
-      state = { ...state, posts: posts.filter(post => post.id !== payload) };
+    deletePost(posts, { payload }) {
+      return posts.filter(post => post.id !== payload);
     },
-    // addComment({posts}, action) {
-    //   return posts.map(post => (post.id === action.payload.id ? action.payload : post));
-    // },
+    setPosts(_, { payload }) {
+      return payload;
+    },
   },
 });
 
 export default postsSlice.reducer;
-export const { writePost, deletePost } = postsSlice.actions;
-export const selectPosts = ({ posts }) => posts;
+export const { addPost, deletePost, setPosts } = postsSlice.actions;
+export const selectPosts = state => state.posts;

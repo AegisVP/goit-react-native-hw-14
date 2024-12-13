@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import React from 'react';
+import { Image, Keyboard, Pressable, ScrollView, Text, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import { style as genStyles } from '../../styles/general';
@@ -36,8 +36,8 @@ const ProfileScreen = () => {
   const MetaLine = ({ item: { comments, likes = [], locality } }) => (
     <View style={postMetaStyles.postMeta}>
       <View style={{ gap: 24, flexDirection: 'row' }}>
-        <Text style={[postMetaStyles.postDescription, { color: comments.length > 0 ? colors.default : colors.text.secondary }]}>
-          <Ionicons name='chatbubbles' color={colors.accent} size={16} /> <Text>{comments.length}</Text>
+        <Text style={[postMetaStyles.postDescription, { color: comments?.length > 0 ? colors.default : colors.text.secondary }]}>
+          <Ionicons name='chatbubbles' color={colors.accent} size={16} /> <Text>{comments?.length ?? 0}</Text>
         </Text>
         <Text style={[postMetaStyles.postDescription, { color: likes.length > 0 ? colors.default : colors.text.secondary }]}>
           <Ionicons name='thumbs-up-outline' color={colors.accent} size={16} /> <Text>{likes.length}</Text>

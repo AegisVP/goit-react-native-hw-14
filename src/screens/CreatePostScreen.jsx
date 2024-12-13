@@ -3,10 +3,14 @@ import { Image, KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, V
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as LocationSvc from 'expo-location';
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { colors } from '../../styles/colors';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
+import { addPost as addPostDB } from '../utils/firestore';
+import { useDispatch, useSelector } from 'react-redux';
+import { addPost } from '../redux/postsSlice';
+import { selectUserInfo } from '../redux/userSlice';
 
 const CreatePostScreen = () => {
   const [imageData, setImageData] = useState(null);
@@ -18,6 +22,8 @@ const CreatePostScreen = () => {
   const camera = useRef();
   const titleField = useRef();
   const { navigate } = useNavigation();
+  const dispatch = useDispatch();
+  const user = useSelector(selectUserInfo);
 
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -65,7 +71,17 @@ const CreatePostScreen = () => {
     const locality = 'Somewhere in the world';
 
     // TODO: handle saving the post
-    // addPost({ pictureUrl: imageData?.uri ?? '', pictureName: title, geoLocation: location });
+    const newPost = {
+      comments: [],
+      pictureUrl: imageData?.uri ?? '',
+      pictureName: title,
+      geo_latitude: location.latitude,
+      geo_longitude: location.longitude,
+      locality,
+    };
+    console.log({ newPost });
+    addPostDB(user.uid, newPost);
+    dispatch(addPost(newPost));
 
     setImageData(null);
     setTitle('');
