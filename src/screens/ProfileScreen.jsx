@@ -1,19 +1,36 @@
-import React from 'react';
-import { Image, Pressable, ScrollView, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { Ionicons } from '@expo/vector-icons';
 import { style as genStyles } from '../../styles/general';
 import { styles as postMetaStyles } from '../components/PostCard';
 import { LogoutButton } from '../components/LogoutButton';
 import { colors } from '../../styles/colors';
-import { Ionicons } from '@expo/vector-icons';
 import { PostCard } from '../components/PostCard';
+import { clearUserInfo, selectUserInfo, setUserInfo } from '../redux/userSlice';
+import { selectPosts } from '../redux/postsSlice';
+import { updateUserInFirestore } from '../utils/firestore';
+import { EditableText } from '../components/EditableText';
+import { logoutDB } from '../utils/auth';
 
-const ProfileScreen = ({ user, posts, comments, doLogout }) => {
-  const handleChangeAvatar = () => {
-    console.log('Change avatar logic');
+const ProfileScreen = () => {
+  const dispatch = useDispatch();
+  const userInfo = useSelector(selectUserInfo);
+  const posts = useSelector(selectPosts);
+
+  const handleChangeAvatar = profilePhoto => {
+    updateUserInFirestore(userInfo.uid, { profilePhoto });
+    dispatch(setUserInfo({ ...userInfo, profilePhoto }));
+  };
+
+  const handleChangeName = displayName => {
+    updateUserInFirestore(userInfo.uid, { displayName });
+    dispatch(setUserInfo({ ...userInfo, displayName }));
   };
 
   const handleLogout = () => {
-    doLogout();
+    dispatch(clearUserInfo());
+    logoutDB();
   };
 
   const MetaLine = ({ item: { comments, likes = [], locality } }) => (
@@ -27,24 +44,30 @@ const ProfileScreen = ({ user, posts, comments, doLogout }) => {
         </Text>
       </View>
       <Text style={[postMetaStyles.postDescription, { color: colors.text.secondary }]}>
-        <Ionicons name='location-outline' size={16} /> <Text style={{ color: colors.text.default, textDecorationLine: 'underline' }}>{locality}</Text>
+        <Ionicons name='location-outline' size={16} />
+        <Text style={{ color: colors.text.default, textDecorationLine: 'underline' }}> {locality}</Text>
       </Text>
     </View>
   );
 
   return (
-    <>
+    <Pressable
+      style={{ flex: 1 }}
+      onPress={() => {
+        Keyboard.dismiss;
+      }}>
       <Image source={require('../../assets/images/register_bg.jpg')} style={genStyles.backgroundImage} />
       <ScrollView style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
         <Pressable onPress={handleChangeAvatar} style={{ position: 'relative', top: 60, width: 120, height: 120, marginHorizontal: 'auto', zIndex: 1 }}>
-          <Image source={require(`../../assets/images/avatar.jpg`)} style={{ width: 120, height: 120, borderRadius: 16 }} />
+          <Image source={{ uri: userInfo?.profilePhoto || 'https://cdn-icons-png.flaticon.com/512/149/149071.png' }} style={{ width: 120, height: 120, borderRadius: 16 }} />
         </Pressable>
         <View
           style={{
+            flex: 1,
             minHeight: '200%',
+            justifyContent: 'start',
             alignItems: 'center',
             backgroundColor: 'white',
-            justifyContent: 'start',
             paddingTop: 60 + 32,
             gap: 32,
             borderTopLeftRadius: 25,
@@ -56,7 +79,9 @@ const ProfileScreen = ({ user, posts, comments, doLogout }) => {
             style={{ position: 'absolute', top: 14, right: '33%', padding: 0, borderRadius: '50%', overflow: 'hidden', backgroundColor: colors.white, zIndex: 1 }}>
             <Ionicons name='add-circle-outline' size={24} color={colors.text.secondary} style={{ transform: [{ rotate: '45deg' }] }} />
           </Pressable>
-          <Text style={{ fontWeight: 500, fontSize: 30 }}>{user.name}</Text>
+          <EditableText value={userInfo.displayName} onChange={handleChangeName} style={{ width: '100%', paddingHorizontal: 16 }} />
+          <Text style={{ fontWeight: 500, fontSize: 30 }}>{userInfo.email}</Text>
+          <EditableText value={userInfo.profilePhoto} onChange={handleChangeAvatar} style={{ width: '100%', paddingHorizontal: 16 }} />
           <View style={{ flex: 1, width: '100%', gap: 32, margin: 0, paddingHorizontal: 16 }}>
             {posts.map(item => (
               <PostCard key={item.id} post={item} metaLine={() => <MetaLine item={item} />} />
@@ -64,7 +89,7 @@ const ProfileScreen = ({ user, posts, comments, doLogout }) => {
           </View>
         </View>
       </ScrollView>
-    </>
+    </Pressable>
   );
 };
 

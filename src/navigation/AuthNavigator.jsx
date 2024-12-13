@@ -1,68 +1,63 @@
 import React, { useEffect, useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch, useSelector } from 'react-redux';
 import HomeNavigator from './HomeNavigator';
 import LoginScreen from '../screens/LoginScreen';
 import RegistrationScreen from '../screens/RegistrationScreen';
-import { Text, View } from 'react-native';
+import { logoutDB } from '../utils/auth';
+import { selectUserInfo, setUserInfo } from '../redux/userSlice';
+import { getUser } from '../utils/firestore';
 
 const Stack = createStackNavigator();
-const STORAGE_KEY = 'isLoggedIn';
 
 const AuthNavigator = () => {
-  const [isLoading, setIsLoading] = useState(true);
   const [isLoggedin, setIsLoggedin] = useState(false);
-
-  const readUserAuthFromStorage = async () => {
-    const val = await AsyncStorage.getItem(STORAGE_KEY);
-    setIsLoading(false);
-    return String(val).toLocaleLowerCase() == 'true';
-  };
-
-  const writeUserAuthToStorage = async val => {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, String(val));
-    } catch (e) {
-      console.log('Unable to set storage value');
-    }
-  };
+  const dispatch = useDispatch();
+  const userInfo = useSelector(store => {
+    console.log('AuthNavigator: useSelector:', { store });
+    return store.userInfo;
+  });
 
   useEffect(() => {
-    void readUserAuthFromStorage().then(setIsLoggedin);
-  }, []);
+    console.log('AuthNavigator: useEffect 1:', { userInfo });
+    if (userInfo?.uid) {
+      console.log('AuthNavigator: useEffect 1:', 'setting true');
+      setIsLoggedin(true);
+    } else {
+      console.log('AuthNavigator: useEffect 1:', 'setting false');
+      setIsLoggedin(false);
+    }
+  }, [userInfo]);
 
-  const doLogin = (username, password) => {
-    setIsLoggedin(true);
-    writeUserAuthToStorage(true);
-  };
-
-  const doRegister = () => {
-    setIsLoggedin(true);
-    writeUserAuthToStorage(true);
-  };
+  useEffect(() => {
+    console.log('AuthNavigator: useEffect 2:', { isLoggedin, userInfo });
+    if (isLoggedin) {
+      getUser(userInfo.uid)
+        .then(data => {
+          dispatch(setUserInfo(data));
+          console.log('AuthNavigator: useEffect 2:', { fetchedUser: data });
+        })
+        .catch(() => setIsLoggedin(false));
+    }
+  }, [isLoggedin]);
 
   const doLogout = () => {
-    setIsLoggedin(false);
-    writeUserAuthToStorage(false);
+    logoutDB(dispatch).finally(() => setIsLoggedin(false));
   };
 
-  return isLoading ? (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Loading...</Text>
-    </View>
-  ) : (
+  return (
     <Stack.Navigator>
       {isLoggedin ? (
         <Stack.Screen name='Home' options={{ mode: 'card', headerMode: 'none' }}>
-          {() => <HomeNavigator doLogout={doLogout} isLoggedin={isLoggedin} setIsLoggedin={setIsLoggedin} />}
+          {() => <HomeNavigator doLogout={doLogout} />}
         </Stack.Screen>
       ) : (
         <>
           <Stack.Screen name='Login' options={{ mode: 'card', headerMode: 'none' }}>
-            {() => <LoginScreen doLogin={doLogin} setIsLoggedin={setIsLoggedin} />}
+            {() => <LoginScreen setIsLoggedin={setIsLoggedin} />}
           </Stack.Screen>
           <Stack.Screen name='Register' options={{ mode: 'card', headerMode: 'none' }}>
-            {() => <RegistrationScreen doRegister={doRegister} setIsLoggedin={setIsLoggedin} />}
+            {() => <RegistrationScreen setIsLoggedin={setIsLoggedin} />}
           </Stack.Screen>
         </>
       )}

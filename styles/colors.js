@@ -10,6 +10,7 @@ export const colors = StyleSheet.create({
     default: '#212121',
     secondary: '#BDBDBD',
     link: '#1B4371',
+    error: '#FF001B',
   },
   button: {
     default: {

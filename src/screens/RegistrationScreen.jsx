@@ -6,13 +6,33 @@ import { colors } from '../../styles/colors';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { ShowPasswordButton } from '../components/ShowPassButton';
+import { registerDB } from '../utils/auth';
+import { setUserInfo } from '../redux/userSlice';
+import { useDispatch } from 'react-redux';
 
-const RegistrationScreen = ({ doRegister }) => {
+const RegistrationScreen = ({ setIsLoggedin }) => {
   const navigation = useNavigation();
-  const [userName, setUserName] = useState('');
-  const [userEmail, setUserEmail] = useState('');
-  const [userPass, setUserPass] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [securePassEntry, setSecurePassEntry] = useState(true);
+  const dispatch = useDispatch();
+
+  const doRegister = () => {
+    setIsLoggedin(false);
+    setIsLoading(true);
+    setError('');
+
+    registerDB({ displayName, email, password })
+      .then(({ uid, email }) => {
+        dispatch(setUserInfo({ uid, email, displayName, profilePhoto: '' }));
+        setIsLoggedin(true);
+      })
+      .catch(() => setError('Unable to register, contact support'))
+      .finally(() => setIsLoading(false));
+  };
 
   const gotoLogin = () => {
     navigation.goBack();
@@ -22,21 +42,19 @@ const RegistrationScreen = ({ doRegister }) => {
     <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
       <Image source={require('../../assets/images/register_bg.jpg')} style={style.backgroundImage} />
       <KeyboardAvoidingView style={style.authWindowContainer} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <View style={style.avatarContainer}>
-          <Image source={require('../../assets/images/add.png')} style={{ width: 25, height: 25, position: 'absolute', top: (120 - 25) / 2, left: (120 - 25) / 2 }} />
-        </View>
-        <Text style={[style.registrationTitle, { paddingTop: 40 }]}>Registration</Text>
-        <Input value={userName} onChangeText={setUserName} placeholder='Name' textContentType={'username'} autofocus={true} />
-        <Input value={userEmail} onChangeText={setUserEmail} placeholder='Email address' textContentType='emailAddress' />
+        <Text style={[style.registrationTitle]}>Registration</Text>
+        <Input value={displayName} onChangeText={setDisplayName} placeholder='Name' autofocus={true} />
+        <Input value={email} onChangeText={setEmail} placeholder='Email address' textContentType='emailAddress' />
         <Input
-          value={userPass}
-          onChangeText={setUserPass}
+          value={password}
+          onChangeText={setPassword}
           placeholder='Password'
           secureTextEntry={securePassEntry}
           rightButton={ShowPasswordButton({ securePassEntry, setSecurePassEntry })}
         />
+        {error !== '' && <Text style={{ color: colors.text.error, textAlign: 'center', fontWeight: 500 }}>{error}</Text>}
         <Button onPress={doRegister} outerStyle={{ marginHorizontal: 'auto', marginTop: 43 - 16 }}>
-          <Text style={{ color: colors.button.default.text }}>Register</Text>
+          <Text style={{ color: colors.button.default.text }}>{isLoading ? 'Wait...' : 'Register'}</Text>
         </Button>
         <View style={style.redirectText}>
           <Text>

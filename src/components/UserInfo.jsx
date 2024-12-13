@@ -3,13 +3,13 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import { colors } from '../../styles/colors';
 
 export const UserInfo = ({ user, style: outerStyle = {} }) => {
-  const { name, email } = user;
+  const { displayName, email } = user;
 
   return (
     <View style={[styles.userInfo, outerStyle]}>
       <Image source={require('../../assets/images/avatar.jpg')} style={styles.avatar} />
       <View style={{ gap: 2, direction: 'column' }}>
-        <Text style={{ fontWeight: 700, fontSize: 13, color: colors.text.default }}>{name}</Text>
+        <Text style={{ fontWeight: 700, fontSize: 13, color: colors.text.default }}>{displayName}</Text>
         <Text style={{ fontWeight: 400, fontSize: 11, color: colors.text.default, opacity: 0.8 }}>{email}</Text>
       </View>
     </View>

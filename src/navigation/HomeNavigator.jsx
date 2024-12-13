@@ -12,12 +12,6 @@ import posts from '../../postData';
 
 const Tab = createBottomTabNavigator();
 
-const user = {
-  name: 'Natali Romanova',
-  email: 'email@example.com',
-  avatar: 'avatar.jpg',
-};
-
 const HomeNavigator = ({ doLogout }) => {
   const headerOptions = {
     headerRight: () => <LogoutButton onPress={doLogout} />,
@@ -33,7 +27,7 @@ const HomeNavigator = ({ doLogout }) => {
     <Tab.Navigator initialRouteName='Posts' screenOptions={{ headerStatusBarHeight: 44 }}>
       <Tab.Screen
         name='Posts'
-        component={() => <PostsNavigator user={user} posts={posts} doLogout={doLogout} />}
+        component={() => <PostsNavigator posts={posts} doLogout={doLogout} />}
         options={{
           ...headerOptions,
           headerShown: false,
@@ -64,7 +58,7 @@ const HomeNavigator = ({ doLogout }) => {
 
       <Tab.Screen
         name='Profile'
-        component={() => <ProfileScreen user={user} posts={posts} doLogout={doLogout} />}
+        component={ProfileScreen}
         options={{
           ...headerOptions,
           headerShown: false,

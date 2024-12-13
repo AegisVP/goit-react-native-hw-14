@@ -6,21 +6,35 @@ import { colors } from '../../styles/colors';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { ShowPasswordButton } from '../components/ShowPassButton';
+import { useDispatch } from 'react-redux';
+import { loginDB } from '../utils/auth';
+import { setUserInfo } from '../redux/userSlice';
 
-const LoginScreen = ({ doLogin }) => {
+const LoginScreen = ({ setIsLoggedin }) => {
   const navigation = useNavigation();
-  const [userEmail, setUserEmail] = useState('');
-  const [userPass, setUserPass] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [securePassEntry, setSecurePassEntry] = useState(true);
+  const dispatch = useDispatch();
+
+  const doLogin = () => {
+    setIsLoggedin(false);
+    setIsLoading(true);
+    setError('');
+
+    loginDB({ email, password })
+      .then(({ uid, email, displayName, profilePhoto }) => {
+        dispatch(setUserInfo({ uid, email, displayName, profilePhoto }));
+        setIsLoggedin(true);
+      })
+      .catch(() => setError('Invalid email or password'))
+      .finally(() => setIsLoading(false));
+  };
 
   const gotoSignup = () => {
     navigation.navigate('Register');
-  };
-
-  const handleLogin = () => {
-    //validate userEmail/userPass
-
-    doLogin(userEmail, userPass);
   };
 
   return (
@@ -28,16 +42,17 @@ const LoginScreen = ({ doLogin }) => {
       <Image source={require('../../assets/images/register_bg.jpg')} style={style.backgroundImage} />
       <KeyboardAvoidingView style={style.authWindowContainer} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <Text style={style.loginTitle}>Login</Text>
-        <Input value={userEmail} onChangeText={setUserEmail} placeholder='Email address' textContentType='emailAddress' autofocus={true} />
+        <Input value={email} onChangeText={setEmail} placeholder='Email address' textContentType='emailAddress' autofocus={true} />
         <Input
-          value={userPass}
-          onChangeText={setUserPass}
+          value={password}
+          onChangeText={setPassword}
           placeholder='Password'
           secureTextEntry={securePassEntry}
           rightButton={ShowPasswordButton({ securePassEntry, setSecurePassEntry })}
         />
-        <Button onPress={handleLogin} outerStyle={{ marginHorizontal: 'auto', marginTop: 43 - 16 }}>
-          <Text style={{ color: colors.button.default.text }}>Log in</Text>
+        {error !== '' && <Text style={{ color: colors.text.error, textAlign: 'center', fontWeight: 500 }}>{error}</Text>}
+        <Button onPress={doLogin} outerStyle={{ marginHorizontal: 'auto', marginTop: 43 - 16 }} disabled={isLoading}>
+          <Text style={{ color: colors.button.default.text }}>{isLoading ? 'Wait...' : 'Log in'}</Text>
         </Button>
         <View style={style.redirectText}>
           <Text>
